@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>An Gem – Xếp ca</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;color:#1A4D3A;min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:1rem}
+.header{display:flex;align-items:center;gap:10px;padding-bottom:1rem;border-bottom:2px solid #E8F5F0;margin-bottom:1.5rem}
+.logo{width:36px;height:36px;border-radius:10px;background:#2D7A5F;display:flex;align-items:center;justify-content:center}
+.logo svg{width:20px;height:20px}
+.brand-name{font-weight:700;font-size:15px;letter-spacing:.3px}
+.brand-sub{font-size:11px;color:#5AA68C}
+.tabs{display:flex;gap:8px;margin-bottom:1.5rem}
+.tab{flex:1;padding:9px 0;border-radius:8px;border:1.5px solid #A8D5C2;background:transparent;color:#2D7A5F;font-weight:600;cursor:pointer;font-size:13px}
+.tab.active{background:#2D7A5F;color:#fff;border-color:#2D7A5F}
+.inner-tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
+.inner-tab{padding:6px 16px;border-radius:20px;border:1px solid #A8D5C2;background:transparent;color:#5AA68C;font-weight:400;cursor:pointer;font-size:12px}
+.inner-tab.active{background:#E8F5F0;color:#2D7A5F;font-weight:600;border-color:#2D7A5F}
+.logout-btn{margin-left:auto;padding:6px 14px;border-radius:20px;border:1px solid #A8D5C2;background:transparent;color:#5AA68C;font-size:12px;cursor:pointer}
+input[type=text],input[type=password],input[type=date]{border:1.5px solid #A8D5C2;border-radius:8px;padding:8px 12px;font-size:13px;outline:none;color:#1A4D3A;width:100%}
+input[type=text]:focus,input[type=password]:focus,input[type=date]:focus{border-color:#2D7A5F}
+.btn{padding:9px 24px;border-radius:8px;border:none;background:#2D7A5F;color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+.btn:disabled{background:#ccc;cursor:not-allowed}
+.btn-outline{background:transparent;border:1.5px solid #2D7A5F;color:#2D7A5F}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{border:1px solid #A8D5C2;padding:6px 4px;text-align:center}
+th{background:#E8F5F0;font-weight:600;color:#1A4D3A}
+td.ca-cell{text-align:left;padding:8px 12px;background:#E8F5F0}
+.ca-name{font-weight:600;color:#1A4D3A}
+.ca-time{font-size:10px;color:#5AA68C}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;margin:2px;white-space:nowrap}
+.summary-card{border-radius:10px;padding:8px 12px;min-width:110px;position:relative;display:inline-block;margin:4px}
+.name-btn{padding:8px 16px;border-radius:20px;cursor:pointer;font-weight:600;font-size:13px;border:2px solid #A8D5C2;background:transparent;color:#5AA68C;margin:4px}
+.name-btn.selected{border-color:var(--c);background:color-mix(in srgb,var(--c) 13%,white);color:var(--c)}
+.staff-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px;border:1px solid #A8D5C2;background:#E8F5F0;margin-bottom:8px}
+.avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+.remove-btn{background:none;border:none;cursor:pointer;color:#aaa;font-size:18px;line-height:1}
+.week-header{background:#2D7A5F;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.week-header span{font-weight:700;font-size:13px;color:#fff}
+.week-badge{font-size:11px;background:rgba(255,255,255,.2);color:#fff;padding:2px 9px;border-radius:20px;font-weight:600}
+.week-block{border-radius:12px;border:1.5px solid #A8D5C2;overflow:hidden;margin-bottom:2rem}
+.success-wrap{text-align:center;padding:2.5rem 1rem}
+.check-circle{width:64px;height:64px;border-radius:50%;background:#E8F5F0;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:2px solid #2D7A5F}
+.lock-wrap{text-align:center;padding:3rem 1rem}
+.lock-circle{width:56px;height:56px;border-radius:50%;background:#E8F5F0;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:1.5px solid #A8D5C2}
+.pw-row{display:flex;gap:8px;justify-content:center;max-width:280px;margin:0 auto}
+.pw-row input{text-align:center;letter-spacing:2px}
+.err{color:#C0392B;font-size:12px;margin-top:8px}
+.loading{display:flex;align-items:center;justify-content:center;min-height:200px}
+.spinner{width:36px;height:36px;border:3px solid #E8F5F0;border-top:3px solid #2D7A5F;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.low-card{background:#FDECEA!important;border-color:rgba(192,57,43,.27)!important}
+.low-num{color:#C0392B!important}
+.low-label{color:#C0392B!important}
+.row-flex{display:flex;gap:12px;margin-bottom:1rem;flex-wrap:wrap;align-items:flex-end}
+.label{font-size:12px;color:#5AA68C;margin-bottom:6px;font-weight:500}
+.week-label-text{font-size:12px;color:#5AA68C;margin-bottom:10px;font-weight:500}
+.summary-wrap{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px 14px}
+.history-header{padding:8px 14px;background:#E8F5F0;border-bottom:1.5px solid #A8D5C2;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.history-chips{padding:10px 14px 12px;display:flex;flex-wrap:wrap;gap:6px}
+.overflowx{overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none"><polygon points="12,2 15.5,8.5 22,9.3 17,14.1 18.5,21 12,17.5 5.5,21 7,14.1 2,9.3 8.5,8.5" fill="#fff" opacity=".9"/></svg>
+    </div>
+    <div><div class="brand-name">AN GEM</div><div class="brand-sub">Quản lý lịch làm việc kho</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchView('register')">Đăng ký ca</button>
+    <button class="tab" onclick="switchView('admin')">Admin</button>
+  </div>
+  <div id="app"></div>
+</div>
+
+<script>
+const GAS = "https://script.google.com/macros/s/AKfycbzh0lrcIvAWQVOE5WOVhBJZCWICU3IK2pRqIHJ8PNrW8YrVaNQvZ0OWb0xADJxDxDVaDQ/exec";
+const PW = "Claude1356";
+const DAYS = ["T2","T3","T4","T5","T6","T7","CN"];
+const SHIFTS = [{id:"morning",label:"Ca sáng",time:"8:00 – 12:00"},{id:"afternoon",label:"Ca chiều",time:"13:30 – 17:30"}];
+const COLORS = ["#2D7A5F","#D85A30","#D4537E","#7F77DD","#378ADD","#639922","#BA7517","#5DCAA5","#533AB7","#993556"];
+const MIN = 6;
+
+let state = {
+  view:"register", adminUnlocked:false, adminTab:"schedule",
+  staff:[], schedule:[], loading:true,
+  regName:"", regWeek:getMonday(new Date()), regSlots:initSlots(), submitted:false,
+  newStaffName:"", adminBase:getMonday(new Date()), pwInput:"", pwError:false
+};
+
+function initSlots(){const s={};DAYS.forEach(d=>{s[d]={morning:false,afternoon:false}});return s;}
+function getMonday(d){const dt=new Date(d),day=dt.getDay(),diff=day===0?-6:1-day;dt.setDate(dt.getDate()+diff);return dt.toISOString().split("T")[0];}
+function weekLabel(s){if(!s)return"";const a=new Date(s),b=new Date(s);b.setDate(a.getDate()+6);return`${a.getDate()}/${a.getMonth()+1} – ${b.getDate()}/${b.getMonth()+1}`;}
+function getWeekDates(s){if(!s)return DAYS.map(d=>({day:d,date:""}));const start=new Date(s);return DAYS.map((d,i)=>{const dt=new Date(start);dt.setDate(start.getDate()+i);return{day:d,date:`${dt.getDate()}/${dt.getMonth()+1}`};});}
+function empTotal(slots){return Object.values(slots).reduce((a,d)=>a+(d.morning?1:0)+(d.afternoon?1:0),0);}
+function gen4Weeks(base){return Array.from({length:4},(_,i)=>{const d=new Date(base);d.setDate(d.getDate()+i*7);return d.toISOString().split("T")[0];});}
+function getWeekEmps(w){return state.schedule.filter(r=>r.week_start===w);}
+function allWeeks(){return[...new Set(state.schedule.map(r=>r.week_start))].sort((a,b)=>b.localeCompare(a));}
+
+async function gasGet(action,params={}){
+  const p = new URLSearchParams({action,...params});
+  const r = await fetch(`${GAS}?${p}`);
+  return r.json();
+}
+async function gasPost(body){return gasGet(body.action,body);}
+
+async function loadData(){
+  state.loading=true;render();
+  try{
+    const[sr,sc]=await Promise.all([gasGet("getStaff"),gasGet("getSchedule")]);
+    state.staff=sr.map(r=>({id:r[0],name:r[1],color:r[2]}));
+    state.schedule=sc.map(r=>({name:r[0],week_start:r[1],slots:typeof r[2]==="string"?JSON.parse(r[2]):r[2],color:r[3]}));
+  }catch(e){console.error(e);}
+  state.loading=false;render();
+}
+
+function switchView(v){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===(v==='register'?0:1)));
+  state.view=v;render();
+}
+
+function render(){
+  const app=document.getElementById('app');
+  if(state.loading){app.innerHTML='<div class="loading"><div class="spinner"></div></div>';return;}
+  if(state.view==='register') app.innerHTML=renderRegister();
+  else app.innerHTML=renderAdmin();
+}
+
+function renderRegister(){
+  if(state.submitted){
+    const t=empTotal(state.regSlots);
+    return`<div class="success-wrap">
+      <div class="check-circle"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2D7A5F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <p style="font-weight:700;font-size:17px;margin-bottom:4px">Đã ghi nhận!</p>
+      <p style="color:#5AA68C;font-size:13px;margin-bottom:1.5rem">${state.regName} · Tuần ${weekLabel(state.regWeek)} · <strong style="color:#2D7A5F">${t} ca</strong></p>
+      <button class="btn btn-outline" onclick="resetReg()">Đăng ký thêm</button>
+    </div>`;
+  }
+  const namesHTML = state.staff.length===0
+    ? `<div style="padding:10px 12px;border-radius:8px;border:1.5px solid #A8D5C2;font-size:13px;color:#5AA68C">Chưa có nhân sự. Admin thêm trước nhé.</div>`
+    : state.staff.map(s=>`<button class="name-btn${state.regName===s.name?' selected':''}" style="--c:${s.color}" onclick="selectName('${s.name}')">${s.name}</button>`).join('');
+  const total=empTotal(state.regSlots);
+  const tableRows=SHIFTS.map((sh,si)=>`<tr>
+    <td class="ca-cell"><div class="ca-name">${sh.label}</div><div class="ca-time">${sh.time}</div></td>
+    ${DAYS.map(d=>`<td><input type="checkbox" ${state.regSlots[d][sh.id]?'checked':''} onchange="toggleSlot('${d}','${sh.id}')" style="width:18px;height:18px;cursor:pointer;accent-color:#2D7A5F"></td>`).join('')}
+  </tr>`).join('');
+  return`
+    <p style="color:#5AA68C;font-size:13px;margin-bottom:1rem">Chọn tên, chọn tuần và tick ca bạn rảnh.</p>
+    <div class="row-flex">
+      <div style="flex:1;min-width:160px">
+        <div class="label">Chọn tên của bạn</div>
+        <div>${namesHTML}</div>
+      </div>
+      <div>
+        <div class="label">Tuần (T2)</div>
+        <input type="date" value="${state.regWeek}" onchange="state.regWeek=this.value;render()" style="width:auto">
+      </div>
+    </div>
+    ${state.regWeek?`<div class="week-label-text">Tuần ${weekLabel(state.regWeek)}</div>`:''}
+    <div class="overflowx" style="border-radius:10px;border:1.5px solid #A8D5C2;overflow:hidden;margin-bottom:1rem">
+      <table>
+        <thead><tr><th style="text-align:left;padding:8px 12px;min-width:90px">Ca</th>${DAYS.map(d=>`<th>${d}</th>`).join('')}</tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:13px;color:#5AA68C">${state.regName?`Cho <strong style="color:#2D7A5F">${state.regName}</strong> · `:''}<strong style="color:#2D7A5F;font-size:15px">${total}</strong> ca</span>
+      <button class="btn" ${!state.regName||total===0?'disabled':''} onclick="submitReg()">Gửi đăng ký ✓</button>
+    </div>`;
+}
+
+function renderAdmin(){
+  if(!state.adminUnlocked) return`
+    <div class="lock-wrap">
+      <div class="lock-circle"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2D7A5F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <p style="font-weight:700;font-size:15px;margin-bottom:4px">Khu vực Admin</p>
+      <p style="font-size:12px;color:#5AA68C;margin-bottom:1.5rem">Nhập mật khẩu để tiếp tục</p>
+      <div class="pw-row">
+        <input type="password" id="pw" value="${state.pwInput}" oninput="state.pwInput=this.value;state.pwError=false" onkeydown="if(event.key==='Enter')unlock()" placeholder="Mật khẩu" style="${state.pwError?'border-color:#C0392B':''}">
+        <button class="btn" onclick="unlock()">Vào</button>
+      </div>
+      ${state.pwError?'<p class="err">Mật khẩu không đúng.</p>':''}
+    </div>`;
+  const tabs=['schedule','staff','history'];
+  const labels=['Lịch tháng','Nhân sự','Lịch sử'];
+  return`
+    <div class="inner-tabs">
+      ${tabs.map((t,i)=>`<button class="inner-tab${state.adminTab===t?' active':''}" onclick="state.adminTab='${t}';render()">${labels[i]}</button>`).join('')}
+      <button class="logout-btn" onclick="state.adminUnlocked=false;render()">Đăng xuất</button>
+    </div>
+    ${state.adminTab==='staff'?renderStaff():state.adminTab==='schedule'?renderSchedule():renderHistory()}`;
+}
+
+function renderStaff(){
+  const rows=state.staff.map(s=>`
+    <div class="staff-row">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar" style="background:${s.color}">${s.name.charAt(0)}</div>
+        <span style="font-weight:600;font-size:14px">${s.name}</span>
+      </div>
+      <button class="remove-btn" onclick="removeStaff('${s.id}')">×</button>
+    </div>`).join('');
+  return`
+    <div style="font-weight:700;font-size:14px;margin-bottom:12px">Danh sách nhân sự</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <input type="text" id="newStaff" value="${state.newStaffName}" oninput="state.newStaffName=this.value" onkeydown="if(event.key==='Enter')addStaff()" placeholder="Thêm tên nhân viên...">
+      <button class="btn" ${!state.newStaffName.trim()?'disabled':''} onclick="addStaff()">Thêm</button>
+    </div>
+    ${state.staff.length===0?'<p style="color:#5AA68C;font-size:13px">Chưa có nhân sự nào.</p>':rows}`;
+}
+
+function renderSchedule(){
+  const weeks=gen4Weeks(state.adminBase);
+  return`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap">
+      <label style="font-size:13px;color:#5AA68C;font-weight:500">T2 đầu tháng</label>
+      <input type="date" value="${state.adminBase}" onchange="state.adminBase=this.value;render()" style="width:auto">
+    </div>
+    ${weeks.map((wk,wi)=>{
+      const emps=getWeekEmps(wk);
+      const low=emps.filter(e=>empTotal(e.slots)<MIN).length;
+      return`<div class="week-block">
+        <div class="week-header">
+          <span>Tuần ${wi+1} · ${weekLabel(wk)}</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:12px;color:#A8D5C2">${emps.length} NV</span>
+            ${low>0?`<span class="week-badge">⚠ ${low} thiếu ca</span>`:''}
+          </div>
+        </div>
+        ${renderWeekTable(wk)}
+        ${renderSummary(wk)}
+      </div>`;
+    }).join('')}`;
+}
+
+function renderHistory(){
+  const weeks=allWeeks();
+  if(!weeks.length) return'<p style="color:#5AA68C;font-size:13px">Chưa có dữ liệu.</p>';
+  return weeks.map(wk=>{
+    const emps=getWeekEmps(wk);
+    const lowEmps=emps.filter(e=>empTotal(e.slots)<MIN);
+    return`<div class="week-block">
+      <div class="history-header">
+        <span style="font-weight:700;font-size:13px">${weekLabel(wk)}</span>
+        <span style="font-size:12px;color:#5AA68C">${emps.length} NV</span>
+        ${lowEmps.length?`<span style="font-size:11px;background:#FDECEA;color:#C0392B;padding:2px 9px;border-radius:20px;font-weight:600;border:1px solid rgba(192,57,43,.27)">⚠ ${lowEmps.length} NV thiếu ca</span>`:''}
+      </div>
+      ${renderWeekTable(wk)}
+      <div class="history-chips">
+        ${emps.map(e=>{const t=empTotal(e.slots),low=t<MIN;return`<span style="font-size:12px;padding:3px 11px;border-radius:20px;font-weight:600;background:${low?'#FDECEA':'#E8F5F0'};color:${low?'#C0392B':e.color};border:1px solid ${low?'rgba(192,57,43,.27)':'#A8D5C2'}">${e.name} · ${t} ca ${low?'⚠':'✓'}</span>`}).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderWeekTable(weekStart){
+  const emps=getWeekEmps(weekStart);
+  const wd=getWeekDates(weekStart);
+  const rows=SHIFTS.map(sh=>`<tr>
+    <td class="ca-cell"><div class="ca-name">${sh.label}</div><div class="ca-time">${sh.time}</div></td>
+    ${DAYS.map(d=>{
+      const list=emps.filter(e=>e.slots[d]&&e.slots[d][sh.id]);
+      return`<td>${list.length?list.map(e=>`<span class="chip" style="background:${e.color}22;color:${e.color};border:1px solid ${e.color}33">${e.name}</span>`).join(''):'<span style="color:#A8D5C2;font-size:11px">—</span>'}</td>`;
+    }).join('')}
+  </tr>`).join('');
+  return`<div class="overflowx"><table>
+    <thead><tr><th style="text-align:left;padding:8px 12px;min-width:90px">Ca làm việc</th>${wd.map(({day,date})=>`<th><div>${day}</div>${date?`<div style="font-size:10px;font-weight:400;color:#5AA68C">${date}</div>`:''}</th>`).join('')}</tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function renderSummary(weekStart){
+  const emps=getWeekEmps(weekStart);
+  if(!emps.length) return`<div style="padding:12px 14px;color:#5AA68C;font-size:12px">Chưa có ai đăng ký.</div>`;
+  return`<div class="summary-wrap">${emps.map(e=>{
+    const t=empTotal(e.slots),low=t<MIN;
+    return`<div class="summary-card${low?' low-card':''}" style="background:${low?'#FDECEA':'#E8F5F0'};border:1px solid ${low?'rgba(192,57,43,.27)':'#A8D5C2'}">
+      <button class="remove-btn" style="position:absolute;top:5px;right:7px" onclick="removeSchedule('${e.name}','${e.week_start}')">×</button>
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+        <div style="width:8px;height:8px;border-radius:50%;background:${e.color}"></div>
+        <span style="font-size:12px;font-weight:600;padding-right:12px">${e.name}</span>
+      </div>
+      <div style="font-size:22px;font-weight:700;color:${low?'#C0392B':'#2D7A5F'};line-height:1">${t}</div>
+      <div style="font-size:10px;color:${low?'#C0392B':'#5AA68C'};margin-top:2px">${low?'⚠ thiếu ca':'✓ đủ ca'}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function selectName(n){state.regName=n;render();}
+function toggleSlot(d,s){state.regSlots[d][s]=!state.regSlots[d][s];render();}
+function resetReg(){state.regName='';state.regSlots=initSlots();state.submitted=false;render();}
+
+async function submitReg(){
+  if(!state.regName||empTotal(state.regSlots)===0)return;
+  const emp=state.staff.find(s=>s.name===state.regName);
+  await gasPost({action:"saveSchedule",name:state.regName,week_start:state.regWeek,slots:state.regSlots,color:emp?.color||COLORS[0]});
+  const sc=await gasGet("getSchedule");
+  state.schedule=sc.map(r=>({name:r[0],week_start:r[1],slots:typeof r[2]==="string"?JSON.parse(r[2]):r[2],color:r[3]}));
+  state.submitted=true;render();
+}
+
+async function addStaff(){
+  if(!state.newStaffName.trim())return;
+  const id=Date.now()+"";
+  const color=COLORS[state.staff.length%COLORS.length];
+  await gasPost({action:"addStaff",id,name:state.newStaffName.trim(),color});
+  const sr=await gasGet("getStaff");
+  state.staff=sr.map(r=>({id:r[0],name:r[1],color:r[2]}));
+  state.newStaffName='';render();
+}
+
+async function removeStaff(id){
+  await gasPost({action:"removeStaff",id});
+  const sr=await gasGet("getStaff");
+  state.staff=sr.map(r=>({id:r[0],name:r[1],color:r[2]}));
+  render();
+}
+
+async function removeSchedule(name,week_start){
+  await gasPost({action:"removeSchedule",name,week_start});
+  const sc=await gasGet("getSchedule");
+  state.schedule=sc.map(r=>({name:r[0],week_start:r[1],slots:typeof r[2]==="string"?JSON.parse(r[2]):r[2],color:r[3]}));
+  render();
+}
+
+function unlock(){
+  if(document.getElementById('pw'))state.pwInput=document.getElementById('pw').value;
+  if(state.pwInput===PW){state.adminUnlocked=true;state.pwError=false;}
+  else{state.pwError=true;}
+  render();
+}
+
+loadData();
+</script>
+</body>
+</html>
