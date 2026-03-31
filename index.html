@@ -298,11 +298,17 @@ function resetReg(){state.regName='';state.regSlots=initSlots();state.submitted=
 
 async function submitReg(){
   if(!state.regName||empTotal(state.regSlots)===0)return;
-  const emp=state.staff.find(s=>s.name===state.regName);
-  await gasPost({action:"saveSchedule",name:state.regName,week_start:state.regWeek,slots:state.regSlots,color:emp?.color||COLORS[0]});
-  const sc=await gasGet("getSchedule");
-  state.schedule=sc.map(r=>({name:r[0],week_start:r[1],slots:typeof r[2]==="string"?JSON.parse(r[2]):r[2],color:r[3]}));
-  state.submitted=true;render();
+  try{
+    const emp=state.staff.find(s=>s.name===state.regName);
+    const slots=JSON.stringify(state.regSlots);
+    const color=emp?.color||COLORS[0];
+    const p=new URLSearchParams({action:"saveSchedule",name:state.regName,week_start:state.regWeek,slots,color});
+    await fetch(`${GAS}?${p}`);
+    const sc=await gasGet("getSchedule");
+    state.schedule=sc.map(r=>({name:r[0],week_start:r[1],slots:typeof r[2]==="string"?JSON.parse(r[2]):r[2],color:r[3]}));
+    state.submitted=true;
+  }catch(e){alert("Lỗi: "+e.message);}
+  render();
 }
 
 async function addStaff(){
